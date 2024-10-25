@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 import styled from "styled-components";
+import Color from "color";
 
 const P = styled.p`
   color: #000000;
@@ -45,13 +46,10 @@ const Container = styled.main`
   text-align: center;
 `;
 
-const H1 = styled.h1`
-  color: #000000;
-  font-size: 50px;
-`;
 
 function App() {
   const [color, setColor] = useState("");
+  const [fontColor, setFontColor] = useState("");
   const [colorName, setColorName] = useState("");
   const colors = [
     "0",
@@ -100,34 +98,44 @@ function App() {
     return colorNoHash;
   }
 
+  function adjustColor(color, amount) {
+    let adjustedColor = "";
+    for (let i = 0; i < color.length; i++) {
+      let char = color.charAt(i);
+      let newIndex = colors.indexOf(char) + amount;
+      if (newIndex < 0) newIndex = 0;
+      if (newIndex >= colors.length) newIndex = colors.length - 1;
+      adjustedColor += colors[newIndex];
+    }
+    return adjustedColor;
+  }
+  
+  useEffect(() => {
+    if (color) {
+      const colorObj = Color(color);
+      if (colorObj.isDark()) {
+        console.log(colorObj.isDark());
+        setFontColor("#ffffff");
+      } else {
+        console.log(colorObj.isDark());
+        setFontColor("#000000");
+      }
+    }
+  }, [color]);
+
+
+  
   function darkenColor(color) {
     const nonHashColor = removeHash(color);
-    let newColor = "";
-
-    for (let i = 0; i < nonHashColor.length; i++) {
-      let char = nonHashColor.charAt(i);
-      let newChar = char === "0" ? "0" : colors[colors.indexOf(char) - 1];
-      newColor += newChar;
-    }
-    let darkenedColor = `#${newColor}`;
+    let darkenedColor = `#${adjustColor(nonHashColor, -1)}`;
     setColor(darkenedColor);
-    removeHash(darkenedColor);
     return darkenedColor;
   }
-
+  
   function lightenColor(color) {
     const nonHashColor = removeHash(color);
-    let newColor = "";
-
-    for (let i = 0; i < nonHashColor.length; i++) {
-      let char = nonHashColor.charAt(i);
-      let newChar = char === "F" ? "F" : colors[colors.indexOf(char) + 1];
-      newColor += newChar;
-    }
-
-    let lightenedColor = `#${newColor}`;
+    let lightenedColor = `#${adjustColor(nonHashColor, 1)}`;
     setColor(lightenedColor);
-    removeHash(lightenedColor);
     return lightenedColor;
   }
 
@@ -144,7 +152,6 @@ function App() {
           `https://www.thecolorapi.com/id?hex=${colorId}`
         );
         const data = await res.json();
-        console.log(data.name.value);
         setColorName(data.name.value);
       } catch (error) {
         console.log(error);
@@ -179,11 +186,11 @@ function App() {
   return (
     <Container onClick={handleClick} style={{ backgroundColor: color }}>
       <div>
-        <H1>{colorName}</H1>
-        <Button onClick={copyText} style={{ backgroundColor: color }}>
+        <h1 style={{color: fontColor}}>{colorName}</h1>
+        <Button onClick={copyText} style={{ backgroundColor: color, color: fontColor }}>
           {color}
         </Button>
-        <P>Click the text to copy the color</P>
+        <P style={{color: fontColor}}>Click the text to copy the color</P>
         <ButtonChangeColor onClick={() => darkenColor(color)}>
           Darken Color
         </ButtonChangeColor>
