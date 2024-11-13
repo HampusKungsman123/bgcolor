@@ -46,7 +46,6 @@ const Container = styled.main`
   text-align: center;
 `;
 
-
 function App() {
   const [color, setColor] = useState("");
   const [fontColor, setFontColor] = useState("");
@@ -109,7 +108,7 @@ function App() {
     }
     return adjustedColor;
   }
-  
+
   useEffect(() => {
     if (color) {
       const colorObj = Color(color);
@@ -123,15 +122,64 @@ function App() {
     }
   }, [color]);
 
+  function lowerIntensity(color, index) {
+    let colorNoHash = removeHash(color);
 
-  
+    let colorArray = colorNoHash.split("");
+
+    let colorIndex = parseInt(colorArray[index], 16);
+
+    console.log("Color index " + colorIndex);
+
+    if (colorIndex === 0) {
+      let newColorIndex = parseInt(colorArray[index - 1], 16);
+      console.log(newColorIndex);
+      if (newColorIndex > 0) {
+        colorArray[index - 1] = colors[newColorIndex - 1];
+      } else {
+        console.log("Error: Cannot lower intensity further");
+        return;
+      }
+    } else {
+      colorArray[index] = colors[colorIndex - 1];
+    }
+    let newColor = `#${colorArray.join("")}`;
+    setColor(newColor);
+    return newColor;
+  }
+
+  function increaseIntensity(color, index) {
+    let colorNoHash = removeHash(color);
+
+    let colorArray = colorNoHash.split("");
+
+    let colorIndex = parseInt(colorArray[index], 16);
+
+    console.log("Color index " + colorIndex);
+
+    if (colorIndex === 15) {
+      let newColorIndex = parseInt(colorArray[index - 1], 16);
+      console.log(newColorIndex);
+      if (newColorIndex < 15) {
+        colorArray[index - 1] = colors[newColorIndex + 1];
+      } else {
+        console.log("Error: Cannot increase intensity further");
+        return;
+      }
+    } else {
+      colorArray[index] = colors[colorIndex + 1];
+    }
+    let newColor = `#${colorArray.join("")}`;
+    setColor(newColor);
+    return newColor;
+  }
   function darkenColor(color) {
     const nonHashColor = removeHash(color);
     let darkenedColor = `#${adjustColor(nonHashColor, -1)}`;
     setColor(darkenedColor);
     return darkenedColor;
   }
-  
+
   function lightenColor(color) {
     const nonHashColor = removeHash(color);
     let lightenedColor = `#${adjustColor(nonHashColor, 1)}`;
@@ -186,11 +234,14 @@ function App() {
   return (
     <Container onClick={handleClick} style={{ backgroundColor: color }}>
       <div>
-        <h1 style={{color: fontColor}}>{colorName}</h1>
-        <Button onClick={copyText} style={{ backgroundColor: color, color: fontColor }}>
+        <h1 style={{ color: fontColor }}>{colorName}</h1>
+        <Button
+          onClick={copyText}
+          style={{ backgroundColor: color, color: fontColor }}
+        >
           {color}
         </Button>
-        <P style={{color: fontColor}}>Click the text to copy the color</P>
+        <P style={{ color: fontColor }}>Click the text to copy the color</P>
         <ButtonChangeColor onClick={() => darkenColor(color)}>
           Darken Color
         </ButtonChangeColor>
@@ -202,6 +253,30 @@ function App() {
         <ButtonChangeColor onClick={() => lightenColor(color)}>
           Lighten Color
         </ButtonChangeColor>
+
+        <div className="Increase">
+          <ButtonChangeColor onClick={() => increaseIntensity(color, 1)}>
+            Increase Red
+          </ButtonChangeColor>
+          <ButtonChangeColor onClick={() => increaseIntensity(color, 3)}>
+            Increase Green
+          </ButtonChangeColor>
+          <ButtonChangeColor onClick={() => increaseIntensity(color, 5)}>
+            Increase Blue
+          </ButtonChangeColor>
+        </div>
+
+        <div className="Lower">
+          <ButtonChangeColor onClick={() => lowerIntensity(color, 1)}>
+            Lower Red
+          </ButtonChangeColor>
+          <ButtonChangeColor onClick={() => lowerIntensity(color, 3)}>
+            Lower Green
+          </ButtonChangeColor>
+          <ButtonChangeColor onClick={() => lowerIntensity(color, 5)}>
+            Lower Blue
+          </ButtonChangeColor>
+        </div>
       </div>
     </Container>
   );
